@@ -1,0 +1,11 @@
+{
+  "name": "AltcoinTicker",
+  "version": "1.0.0",
+  "description": "Useful Cryptocurrencies Data",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "NGraf",
+  "license": "ISC"
+}
