@@ -16,8 +16,8 @@ var Twit = require('twit'),
 
 console.log("Bot started");
 
-//var job = schedule.scheduleJob('0 12 * * *', getAndTweetTop5);
-getAndTweetTop5();
+var job = schedule.scheduleJob('0 12 * * *', getAndTweetTop5);
+//getAndTweetTop5();
 
 userStream.on('follow', onFollow);
 userStream.on('replies', onReply);
