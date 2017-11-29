@@ -59,13 +59,13 @@ function onTweet(e){
       id = params.id,
       curr = params.currency !== undefined ? params.currency.toUpperCase() : "USD";
 
-    if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
-      console.log("Set up a cron Job to tweet @" + name + " every " + params.frequency + " hours");
-
-      cronJobs.push(schedule.scheduleJob('* */' + params.frequency + ' * * *', function(){
-        tweetAtFan(name, id, curr);
-      }));
-    }
+    // if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
+    //   console.log("Set up a cron Job to tweet @" + name + " every " + params.frequency + " hours");
+    //
+    //   cronJobs.push(schedule.scheduleJob('* */' + params.frequency + ' * * *', function(){
+    //     tweetAtFan(name, id, curr);
+    //   }));
+    // }
   }
 }
 
