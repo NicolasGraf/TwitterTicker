@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "twit": "latest",
-    "express": "latest",
     "https": "latest",
     "node-schedule": "latest"
   },
