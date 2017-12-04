@@ -72,7 +72,7 @@ function onTweet(e){
     //   cronJobs.push(schedule.scheduleJob('* */' + params.frequency + ' * * *', function(){
     //     tweetAtFan(name, id, curr);
     //   }));
-    }
+    //}
   }
 }
 
