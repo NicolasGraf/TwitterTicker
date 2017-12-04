@@ -16,7 +16,7 @@ var Twit = require('twit'),
 
 console.log("Bot started");
 
-new CronJob('00 00 12 * * *', getAndTweetTop5, null, true, "Germany/Berlin");
+new CronJob('00 00 12 * * *', getAndTweetTop5, null, true, "Europe/Berlin");
 
 //getAndTweetTop5();
 
