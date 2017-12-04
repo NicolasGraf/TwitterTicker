@@ -21,9 +21,9 @@ var job = schedule.scheduleJob('0 12 * * *', getAndTweetTop5);
 // cronJobs.push(schedule.scheduleJob("* */2 * * *", function(){
 //   console.log("hi");
 // }));
-cronJobs.push(schedule.scheduleJob("* */5 * * *", function(){
-  tweetAtFan("@Salvador_Diaz", "bitcoin-cash", "usd");
-}));
+// cronJobs.push(schedule.scheduleJob("* */5 * * *", function(){
+//   tweetAtFan("@Salvador_Diaz", "bitcoin-cash", "usd");
+// }));
 
 userStream.on('follow', onFollow);
 userStream.on('replies', onReply);
@@ -72,7 +72,7 @@ function onTweet(e){
     //   cronJobs.push(schedule.scheduleJob('* */' + params.frequency + ' * * *', function(){
     //     tweetAtFan(name, id, curr);
     //   }));
-    //}
+    // }
   }
 }
 
