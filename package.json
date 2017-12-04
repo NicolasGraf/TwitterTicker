@@ -10,7 +10,7 @@
   "dependencies": {
     "twit": "latest",
     "https": "latest",
-    "node-schedule": "latest"
+    "cron": "latest"
   },
   "author": "NGraf",
   "license": "ISC"
