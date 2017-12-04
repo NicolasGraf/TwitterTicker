@@ -67,7 +67,7 @@ function onTweet(e){
     if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
       console.log("Set up a cron Job to tweet @" + name + " every " + params.frequency + " hours");
 
-      cronJobs.push(new Cron('* * */' + params.frequency + ' * * *', function(){
+      cronJobs.push(new CronJob('* * */' + params.frequency + ' * * *', function(){
         tweetAtFan(name, id, curr);
       }));
     }
