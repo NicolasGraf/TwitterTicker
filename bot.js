@@ -16,14 +16,12 @@ var Twit = require('twit'),
 
 console.log("Bot started");
 
-var job = schedule.scheduleJob('0 12 * * *', getAndTweetTop5);
+cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 //getAndTweetTop5();
-// cronJobs.push(schedule.scheduleJob("* */2 * * *", function(){
-//   console.log("hi");
-// }));
-// cronJobs.push(schedule.scheduleJob("* */5 * * *", function(){
-//   tweetAtFan("@Salvador_Diaz", "bitcoin-cash", "usd");
-// }));
+cronJobs.push(schedule.scheduleJob("0 */5 * * *", function(){
+  tweetAtFan("Salvador_Diaz", "bitcoin-cash", "usd");
+}));
+//sina ist cool;
 
 userStream.on('follow', onFollow);
 userStream.on('replies', onReply);
@@ -65,14 +63,13 @@ function onTweet(e){
       id = params.id,
       curr = params.currency !== undefined ? params.currency.toUpperCase() : "USD";
 
-    // if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
-    //   console.log("Set up a cron Job to tweet @" + name + " every " + params.frequency + " hours");
-    //   console.log('* */' + params.frequency + ' * * *');
-    //
-    //   cronJobs.push(schedule.scheduleJob('* */' + params.frequency + ' * * *', function(){
-    //     tweetAtFan(name, id, curr);
-    //   }));
-    // }
+    if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
+      console.log("Set up a cron Job to tweet @" + name + " every " + params.frequency + " hours");
+
+      cronJobs.push(schedule.scheduleJob('0 */' + params.frequency + ' * * *', function(){
+        tweetAtFan(name, id, curr);
+      }));
+    }
   }
 }
 
@@ -91,11 +88,11 @@ function tweetAtFan(name, id, currency){
       fullFanData = JSON.parse(fanData);
       var item = fullFanData[0];
       var infos = "@" + name + "\nYour stats for " + item.name;
-      if(curr.toLowerCase() !== "usd") infos += "\nPrice USD: " + parseFloat(item.price_usd).toFixed(2) + " $";
+      if(curr.toLowerCase() !== "usd") infos += "\n\nPrice USD: " + parseFloat(item.price_usd).toFixed(2) + " $";
       infos +=  "\nPrice " + curr + ": " + parseFloat(item["price_" + curr.toLowerCase()]).toFixed(2) +
         " " + getCurrencySign(curr) +
         "\nSupply: " + item.available_supply + " " + item.symbol +
-        "\n%-Change(24h): " + item.percent_change_24h + "%";
+        "\n%Change(24h): " + item.percent_change_24h + "%";
 
       tweet(infos);
     });
