@@ -10,6 +10,7 @@
   "dependencies": {
     "twit": "latest",
     "https": "latest",
+    "cron": "latest",
     "node-schedule": "latest"
   },
   "author": "NGraf",
