@@ -12,7 +12,8 @@
     "https": "latest",
     "cron": "latest",
     "node-schedule": "latest",
-    "pg": "latest"
+    "pg": "latest",
+    "express": "latest"
   },
   "author": "NGraf",
   "license": "ISC"

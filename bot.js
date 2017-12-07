@@ -1,8 +1,11 @@
 var Twit = require('twit'),
     config = require('./config'),
     https = require('https'),
+    express = require('express'),
     schedule = require('node-schedule'),
+    pg = require('pg'),
     twit = new Twit(config),
+    app = express(),
     userStream = twit.stream('user'),
     seconds = 1000,
     minutes = seconds * 60,
@@ -15,6 +18,18 @@ var Twit = require('twit'),
     fans = [];
 
 console.log("Bot started");
+
+app.get('/db', function (request, response) {
+  console.log(response);
+//   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+//     client.query('SELECT * FROM ticker_jobs', function(err, result) {
+//       console.log(result);
+//       if (err) console.log(err);
+//       else
+//        { console.log("what"); }
+//     });
+//   });
+});
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 
