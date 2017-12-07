@@ -1,7 +1,6 @@
 var Twit = require('twit'),
     config = require('./config'),
     https = require('https'),
-    express = require('express'),
     schedule = require('node-schedule'),
     path = require('path'),
     {Pool, Client} = require('pg'),
@@ -18,14 +17,13 @@ var Twit = require('twit'),
     cronJobs = [],
     fans = [];
 
-var pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-pool.query('select * from ticker_jobs', (err, res) => {
-  console.log(err, res)
-  pool.end()
-});
+// var pool = new Pool({
+//   connectionString: process.env.DATABASE_URL,
+// });
+// pool.query('select * from ticker_jobs', (err, res) => {
+//   console.log(err, res)
+//   pool.end()
+// });
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 
