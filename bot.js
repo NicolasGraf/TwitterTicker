@@ -18,11 +18,7 @@ var Twit = require('twit'),
     cronJobs = [],
     fans = [];
 
-const connectionString =  "postgres://fuxyppnlrcsvcz:44094932a2ab89f7a706f04c2765fa7273ab26d8bfd76070e2e1acad8431dcf8@ec2-54-225-192-243.compute-1.amazonaws.com:5432/d45lotubt6u7qt";
-
-var pool = new Pool({
-  connectionString: connectionString,
-});
+var pool = new Pool();
 
 pool.query('select * from ticker_jobs', (err, res) => {
   console.log(err, res)
