@@ -17,7 +17,7 @@ var Twit = require('twit'),
 console.log("Bot started");
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
-//getAndTweetTop5();
+
 cronJobs.push(schedule.scheduleJob("0 */5 * * *", function(){
   tweetAtFan("Salvador_Diaz", "bitcoin-cash", "usd");
 }));

@@ -11,7 +11,8 @@
     "twit": "latest",
     "https": "latest",
     "cron": "latest",
-    "node-schedule": "latest"
+    "node-schedule": "latest",
+    "pg": "latest"
   },
   "author": "NGraf",
   "license": "ISC"
