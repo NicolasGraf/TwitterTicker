@@ -89,7 +89,7 @@ function tweetAtFan(name, id, currency){
       var item = fullFanData[0];
       var infos = "@" + name + "\nYour stats for " + item.name;
       if(curr.toLowerCase() !== "usd") infos += "\n\nPrice USD: " + parseFloat(item.price_usd).toFixed(2) + " $";
-      infos +=  "\nPrice " + curr + ": " + parseFloat(item["price_" + curr.toLowerCase()]).toFixed(2) +
+      infos +=  "\nPrice " + curr.toUpperCase() + ": " + parseFloat(item["price_" + curr.toLowerCase()]).toFixed(2) +
         " " + getCurrencySign(curr) +
         "\nSupply: " + item.available_supply + " " + item.symbol +
         "\n%Change(24h): " + item.percent_change_24h + "%";
