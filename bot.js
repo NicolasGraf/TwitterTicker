@@ -3,7 +3,8 @@ var Twit = require('twit'),
     https = require('https'),
     express = require('express'),
     schedule = require('node-schedule'),
-    pg = require('pg'),
+    path = require('path'),
+    {Pool, Client} = require('pg'),
     twit = new Twit(config),
     app = express(),
     userStream = twit.stream('user'),
@@ -17,20 +18,15 @@ var Twit = require('twit'),
     cronJobs = [],
     fans = [];
 
-console.log("Bot started");
+const connectionString =  "postgres://fuxyppnlrcsvcz:44094932a2ab89f7a706f04c2765fa7273ab26d8bfd76070e2e1acad8431dcf8@ec2-54-225-192-243.compute-1.amazonaws.com:5432/d45lotubt6u7qt";
 
-console.log(process.env.PORT);
+var pool = new Pool({
+  connectionString: connectionString,
+});
 
-app.get('/db', function (request, response) {
-  console.log(response);
-//   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-//     client.query('SELECT * FROM ticker_jobs', function(err, result) {
-//       console.log(result);
-//       if (err) console.log(err);
-//       else
-//        { console.log("what"); }
-//     });
-//   });
+pool.query('select * from ticker_jobs', (err, res) => {
+  console.log(err, res)
+  pool.end()
 });
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
