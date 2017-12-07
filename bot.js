@@ -19,6 +19,8 @@ var Twit = require('twit'),
 
 console.log("Bot started");
 
+console.log(process.env.PORT);
+
 app.get('/db', function (request, response) {
   console.log(response);
 //   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
