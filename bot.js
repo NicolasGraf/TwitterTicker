@@ -18,12 +18,16 @@ var Twit = require('twit'),
     cronJobs = [],
     fans = [];
 
-var pool = new Pool();
-
-pool.query('select * from ticker_jobs', (err, res) => {
-  console.log(err, res)
-  pool.end()
-});
+console.log(process.env);
+//
+// var pool = new Pool({
+//   connectionString: connectionString,
+// });
+//
+// pool.query('select * from ticker_jobs', (err, res) => {
+//   console.log(err, res)
+//   pool.end()
+// });
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 
