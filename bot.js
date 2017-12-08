@@ -5,7 +5,6 @@ var Twit = require('twit'),
     path = require('path'),
     {Pool, Client} = require('pg'),
     twit = new Twit(config),
-    app = express(),
     userStream = twit.stream('user'),
     seconds = 1000,
     minutes = seconds * 60,
@@ -17,19 +16,16 @@ var Twit = require('twit'),
     cronJobs = [],
     fans = [];
 
-// var pool = new Pool({
-//   connectionString: process.env.DATABASE_URL,
-// });
-// pool.query('select * from ticker_jobs', (err, res) => {
-//   console.log(err, res)
-//   pool.end()
-// });
+var pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+pool.query('select * from ticker_jobs', (err, res) => {
+  console.log(res);
+});
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 
-cronJobs.push(schedule.scheduleJob("0 */5 * * *", function(){
-  tweetAtFan("Salvador_Diaz", "bitcoin-cash", "usd");
-}));
 //sina ist cool;
 
 userStream.on('follow', onFollow);
@@ -61,6 +57,28 @@ function getAndTweetTop5(){
   });
 }
 
+function setCronjob(frequency, target, coin, currency){
+  console.log("Set up a cron Job to tweet @" + target + " every " + frequency + " hours");
+
+  cronJobs.push(schedule.scheduleJob('0 */' + frequency + ' * * *', function(){
+    tweetAtFan(target, coin, currency);
+  }));
+}
+
+function insertIntoDB(name, coin_id, currency, frequency){
+  var query = "insert into ticker_jobs values('" + name + "', '" + coin_id + "', '" + currency + "', " + frequency + ")";
+
+  console.log("Executing following Query: " + query);
+
+  pool.query(query, (err, res) => {
+    if(err){
+      console.log(err);
+    } else {
+      console.log(res);
+    }
+  });
+}
+
 function onTweet(e){
   if(e.user.screen_name !== myName){
 
@@ -73,7 +91,7 @@ function onTweet(e){
       curr = params.currency !== undefined ? params.currency.toUpperCase() : "USD";
 
     if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
-      console.log("Set up a cron Job to tweet @" + name + " every " + params.frequency + " hours");
+      insertIntoDB(name, id, curr, params.frequency);
 
       cronJobs.push(schedule.scheduleJob('0 */' + params.frequency + ' * * *', function(){
         tweetAtFan(name, id, curr);
@@ -200,7 +218,7 @@ function tweet(text){
     status: text
   };
 
-  console.log(parameters);
+  console.log("Tweeting the following: " + parameters.status);
   twit.post('statuses/update', parameters, postCallback);
 }
 
