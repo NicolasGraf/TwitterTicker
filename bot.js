@@ -21,7 +21,7 @@ var pool = new Pool({
 });
 
 pool.query('select * from ticker_jobs', (err, res) => {
-  console.log(res);
+  console.log(res.rows);
 });
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
