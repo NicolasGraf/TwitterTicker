@@ -22,6 +22,10 @@ var pool = new Pool({
 
 pool.query('select * from ticker_jobs', (err, res) => {
   console.log(res.rows);
+  var rows = res.rows;
+  for(var i = 0; i < rows.length; i++){
+    setCronjob(rows[i].frequency, rows[i].name, rows[i].coin_id, rows[i].currency);
+  }
 });
 
 cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
