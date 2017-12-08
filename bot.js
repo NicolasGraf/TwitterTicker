@@ -96,10 +96,7 @@ function onTweet(e){
 
     if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
       insertIntoDB(name, id, curr, params.frequency);
-
-      cronJobs.push(schedule.scheduleJob('0 */' + params.frequency + ' * * *', function(){
-        tweetAtFan(name, id, curr);
-      }));
+      setCronjob(params.frequency, name, id, curr);
     }
   }
 }
