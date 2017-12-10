@@ -1,34 +1,36 @@
 var Twit = require('twit'),
     config = require('./config'),
-    https = require('https'),
+    apiService = require('./apiService'),
     schedule = require('node-schedule'),
     path = require('path'),
     {Pool, Client} = require('pg'),
-    twit = new Twit(config),
+    twit = new Twit(config.twitCred),
     userStream = twit.stream('user'),
     seconds = 1000,
     minutes = seconds * 60,
     hours = minutes * 60,
-    apiPath = "https://api.coinmarketcap.com/v1/",
     apiData = [],
     introMsg = "Today's Top 5 Coins: \n\n",
     myName = "AltcoinTicker",
     cronJobs = [],
     fans = [];
 
-var pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
+// var pool = new Pool({
+//   connectionString: process.env.DATABASE_URL
+// });
+//
+// pool.query('select * from ticker_jobs', (err, res) => {
+//   if(res != null){
+//     var rows = res.rows;
+//     for(var i = 0; i < rows.length; i++){
+//       setCronjob(rows[i].frequency, rows[i].name, rows[i].coin_id, rows[i].currency);
+//     }
+//   }
+// });
 
-pool.query('select * from ticker_jobs', (err, res) => {
-  console.log(res.rows);
-  var rows = res.rows;
-  for(var i = 0; i < rows.length; i++){
-    setCronjob(rows[i].frequency, rows[i].name, rows[i].coin_id, rows[i].currency);
-  }
-});
+getAndTweetTop5();
 
-cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
+// cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 
 //sina ist cool;
 
@@ -40,24 +42,15 @@ userStream.on('tweet', onTweet);
 // TICKER FUNCTIONS
 //////////////////
 function getAndTweetTop5(){
-  https.get(apiPath + "ticker/?limit=10", function(res){
-    var data = '',
-      fullData = [],
-      coin;
 
-    res.on('data', function(response){
-      data += response;
-    });
+  apiService.getTickerData(5, 25, "GBP", 'ethereum', function(data){
+    console.log(data);
 
-    res.on('end', function(){
-      fullData = JSON.parse(data);
-
-      for(var i = 0; i < fullData.length/2; i++){
-        coin = fullData[i].rank + ". " + fullData[i].name + " " + fullData[i].price_usd + "$";
-        apiData.push(coin);
-      }
-      tweet(introMsg + apiData.join("\n"));
-    });
+    for(var i = 0; i < fullData.length; i++){
+      coin = data[i].rank + ". " + data[i].name + " " + data[i].price_usd + "$";
+      apiData.push(coin);
+    }
+    tweet(introMsg + apiData.join("\n"));
   });
 }
 
@@ -103,30 +96,18 @@ function onTweet(e){
 
 function tweetAtFan(name, id, currency){
 
-  curr = currency !== undefined ? currency : "USD";
-  https.get(apiPath + "ticker/" + id + "/?convert=" + currency, function (res){
-    var fanData = '',
-      fullFanData = [];
+  convert = currency ? currency.toUpperCase : "USD";
 
-    res.on('data', function(response){
-      fanData += response;
-    });
+  apiService.getTickerData(null, null, convert, id, function(data){
+    var item = data[0];
+    var infos = "@" + name + "\nYour stats for " + item.name;
+    if(curr.toLowerCase() !== "usd") infos += "\n\nPrice USD: " + parseFloat(item.price_usd).toFixed(2) + " $";
+    infos +=  "\nPrice " + curr.toUpperCase() + ": " + parseFloat(item["price_" + curr.toLowerCase()]).toFixed(2) +
+      " " + getCurrencySign(curr) +
+      "\nSupply: " + item.available_supply + " " + item.symbol +
+      "\n%Change(24h): " + item.percent_change_24h + "%";
 
-    res.on('end', function(response){
-      fullFanData = JSON.parse(fanData);
-      var item = fullFanData[0];
-      var infos = "@" + name + "\nYour stats for " + item.name;
-      if(curr.toLowerCase() !== "usd") infos += "\n\nPrice USD: " + parseFloat(item.price_usd).toFixed(2) + " $";
-      infos +=  "\nPrice " + curr.toUpperCase() + ": " + parseFloat(item["price_" + curr.toLowerCase()]).toFixed(2) +
-        " " + getCurrencySign(curr) +
-        "\nSupply: " + item.available_supply + " " + item.symbol +
-        "\n%Change(24h): " + item.percent_change_24h + "%";
-
-      tweet(infos);
-    });
-    res.on('error', function(response){
-      console.log("Error, response is:" + response);
-    });
+    tweet(infos);
   });
 }
 
@@ -145,69 +126,69 @@ function getCurrencySign(isoCurrency){
   var iso = isoCurrency.toUpperCase();
   switch(iso){
     case "USD":
-      return "$";
+      return "$"
     case "EUR":
-      return "€"
+      return "€";
     case "AUD":
-      return "A$"
+      return "A$";
     case "BRL":
-      return "R$"
+      return "R$";
     case "CAD":
-      return "C$"
+      return "C$";
     case "CHF":
-      return "CHF"
+      return "CHF";
     case "CLP":
       return "$"
     case "CNY":
-      return "¥"
+      return "¥";
     case "CZK":
-      return "Kč"
+      return "Kč";
     case "DKK":
       return "kr";
     case "GBP":
-      return "£"
+      return "£";
     case "HKD":
       return "$"
     case "HUF":
-      return "Ft"
+      return "Ft";
     case "IDR":
-      return "Rp"
+      return "Rp";
     case "ILS":
-      return "₪"
+      return "₪";
     case "INR":
-      return "₹"
+      return "₹";
     case "JPY":
-      return "¥"
+      return "¥";
     case "KRW":
-      return "₩"
+      return "₩";
     case "MXN":
       return "$"
     case "MYR":
-      return "RM"
+      return "RM";
     case "NOK":
       return "kr";
     case "NZD":
       return "$"
-    case "PHP":
-      return "₱"
+    case ";PHP":
+      return "₱";
     case "PKR":
-      return "₨"
+      return "₨";
     case "PLN":
-      return "zł"
+      return "zł";
     case "RUB":
-      return "₽"
+      return "₽";
     case "SEK":
-      return "kr"
+      return "kr";
     case "SGD":
       return "$"
-    case "THB":
-      return "฿"
+    case ";THB":
+      return "฿";
     case "TRY":
-      return "₺"
+      return "₺";
     case "TWD":
-      return "NT$"
+      return "NT$";
     case "ZAR":
-      return "R"
+      return "R";
   }
 }
 
@@ -241,7 +222,7 @@ function rand(min, max){
 //////////////////
 function onFollow(e){
   setTimeout(function(){
-
+    //Event also triggers when we follow someone
     if(e.source.name != myName) {
 
       console.log(e.source.name + " followed you");
