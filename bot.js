@@ -108,8 +108,8 @@ function sendInfos(name, coin, currency){
 
       var infos = infoStrings.join("\n") + "\n\n" + hashtags.join(" ");
 
-      // twitterService.tweetAt(name, infos);
-      console.log(infos);
+      twitterService.tweetAt(name, infos);
+      //console.log(infos);
     }
   });
 }
