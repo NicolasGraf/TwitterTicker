@@ -2,6 +2,7 @@ var config = require('./config'),
   https = require('https'),
   path = config.apiPath;
 
+//API has two different endpoints: ticker and global
 function getTickerData(limit, start, convert, currency, callback){
   var params = {
     limit: limit ? "limit=" + limit : "",
@@ -45,6 +46,11 @@ function getData(parameters, callback){
       fullData = JSON.parse(data);
       callback(fullData);
     });
+
+    res.on('error', function(response){
+      console.log("Error, response is:" + response);
+    });
+
   })
 }
 

@@ -1,56 +1,60 @@
-var Twit = require('twit'),
-    config = require('./config'),
+var config = require('./config'),
+    twitterService = require('./twitterService'),
     apiService = require('./apiService'),
     schedule = require('node-schedule'),
     path = require('path'),
     {Pool, Client} = require('pg'),
-    twit = new Twit(config.twitCred),
-    userStream = twit.stream('user'),
+    userStream = twitterService.stream,
     seconds = 1000,
     minutes = seconds * 60,
     hours = minutes * 60,
     apiData = [],
-    introMsg = "Today's Top 5 Coins: \n\n",
     myName = "AltcoinTicker",
     cronJobs = [],
     fans = [];
 
-// var pool = new Pool({
-//   connectionString: process.env.DATABASE_URL
-// });
-//
-// pool.query('select * from ticker_jobs', (err, res) => {
-//   if(res != null){
-//     var rows = res.rows;
-//     for(var i = 0; i < rows.length; i++){
-//       setCronjob(rows[i].frequency, rows[i].name, rows[i].coin_id, rows[i].currency);
-//     }
-//   }
-// });
+function init(){
+  //Listen for tweets, replies, follows
+  userStream.on('follow', onFollow);
+  userStream.on('replies', onReply);
+  userStream.on('tweet', onTweet);
 
-getAndTweetTop5();
+  //Get all saved users from DB
+  var pool = new Pool({
+    connectionString: process.env.DATABASE_URL
+  });
 
-// cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
+  pool.query('select * from ticker_jobs', (err, res) => {
+    if(res != null){
+      var rows = res.rows;
+      for(var i = 0; i < rows.length; i++){
+        setCronjob(rows[i].frequency, rows[i].name, rows[i].coin_id, rows[i].currency);
+      }
+    }
+  });
 
-//sina ist cool;
+  //Setup the daily tweeting
+  cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
+  getAndTweetTop5();
+}
 
-userStream.on('follow', onFollow);
-userStream.on('replies', onReply);
-userStream.on('tweet', onTweet);
+init();
 
 //////////////////
-// TICKER FUNCTIONS
+// CORE
 //////////////////
 function getAndTweetTop5(){
 
-  apiService.getTickerData(5, 25, "GBP", 'ethereum', function(data){
+  var introMsg = "Today's Top 5 Coins: \n\n";
+
+  apiService.getTickerData(5, null, null, null, function(data){
     console.log(data);
 
-    for(var i = 0; i < fullData.length; i++){
+    for(var i = 0; i < data.length; i++){
       coin = data[i].rank + ". " + data[i].name + " " + data[i].price_usd + "$";
       apiData.push(coin);
     }
-    tweet(introMsg + apiData.join("\n"));
+    twitterService.tweet(introMsg + apiData.join("\n"));
   });
 }
 
@@ -58,13 +62,11 @@ function setCronjob(frequency, target, coin, currency){
   console.log("Set up a cron Job to tweet @" + target + " every " + frequency + " hours");
 
   cronJobs.push(schedule.scheduleJob('0 */' + frequency + ' * * *', function(){
-    tweetAtFan(target, coin, currency);
+    sendInfos(target, coin, currency);
   }));
 }
 
-function insertIntoDB(name, coin_id, currency, frequency){
-  var query = "insert into ticker_jobs values('" + name + "', '" + coin_id + "', '" + currency + "', " + frequency + ")";
-
+function insertIntoDB(query){
   console.log("Executing following Query: " + query);
 
   pool.query(query, (err, res) => {
@@ -74,6 +76,12 @@ function insertIntoDB(name, coin_id, currency, frequency){
       console.log(res);
     }
   });
+}
+
+function saveTickerJob(name, coin, currency, frequency){
+  var query = "insert into ticker_jobs values('" + name + "', '" + coin + "', '" + currency + "', " + frequency + ")";
+
+  insertIntoDB(query);
 }
 
 function onTweet(e){
@@ -88,26 +96,26 @@ function onTweet(e){
       curr = params.currency !== undefined ? params.currency.toUpperCase() : "USD";
 
     if(Object.keys(params).length >= 4 && e.text.split("")[0] == "@"){
-      insertIntoDB(name, id, curr, params.frequency);
+      saveTickerJob(name, id, curr, params.frequency);
       setCronjob(params.frequency, name, id, curr);
     }
   }
 }
 
-function tweetAtFan(name, id, currency){
+function sendInfos(name, id, currency){
 
   convert = currency ? currency.toUpperCase : "USD";
 
   apiService.getTickerData(null, null, convert, id, function(data){
     var item = data[0];
-    var infos = "@" + name + "\nYour stats for " + item.name;
+    var infos = "Your stats for " + item.name;
     if(curr.toLowerCase() !== "usd") infos += "\n\nPrice USD: " + parseFloat(item.price_usd).toFixed(2) + " $";
     infos +=  "\nPrice " + curr.toUpperCase() + ": " + parseFloat(item["price_" + curr.toLowerCase()]).toFixed(2) +
       " " + getCurrencySign(curr) +
       "\nSupply: " + item.available_supply + " " + item.symbol +
       "\n%Change(24h): " + item.percent_change_24h + "%";
 
-    tweet(infos);
+    twitterService.tweetAt(name, infos);
   });
 }
 
@@ -193,25 +201,6 @@ function getCurrencySign(isoCurrency){
 }
 
 //////////////////
-// BASIC FUNCTIONS
-//////////////////
-function tweet(text){
-  var parameters = {
-    status: text
-  };
-
-  console.log("Tweeting the following: " + parameters.status);
-  twit.post('statuses/update', parameters, postCallback);
-}
-
-function postCallback(err, data, response){
-  if(err){
-    console.log("Failed with: " + err.message);
-  } else {
-    console.log("Success");
-  }
-}
-//////////////////
 //HELPER FUNCTIONS
 //////////////////
 function rand(min, max){
@@ -236,3 +225,5 @@ function onReply(e){
   console.log("You got a reply from: @" + e.source.screen_name);
   console.log("It reads: " + e.source.text);
 }
+
+//sina ist cool;
