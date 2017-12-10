@@ -129,7 +129,7 @@ function executeQuery(query){
     if(err){
       console.log(err);
     } else {
-      console.log(res);
+      //console.log(res);
     }
   });
 }
