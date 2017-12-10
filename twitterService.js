@@ -6,7 +6,7 @@ var config = require("./config"),
 
 function tweet(text){
   var parameters = {
-    status: text+ " #bitcoin #bot #dev",
+    status: text,
     trim_user: shortResponses
   };
 
@@ -25,8 +25,7 @@ function postCallback(err, data, response){
   if(err){
     console.log("Failed with: " + err.message);
   } else {
-    console.log("Successfully tweeted: ");
-     if(data.text) console.log(data.text);
+    console.log("Successfully tweeted");
   }
 }
 
