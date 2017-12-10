@@ -140,7 +140,7 @@ function saveTickerJob(name, coin, currency, frequency){
 }
 
 function onTweet(e){
-  if(e.user.screen_name !== myName){
+  if(e.user.screen_name !== config.appName){
 
     console.log("@" + e.user.screen_name + " tweeted at you");
     console.log("The tweet reads: " + e.text);
