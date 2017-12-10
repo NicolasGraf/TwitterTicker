@@ -5,6 +5,7 @@ var config = require('./config'),
     util = require('./util'),
     schedule = require('node-schedule'),
     {Pool, Client} = require('pg'),
+    pool = null,
     userStream = twitterService.stream,
     cronJobs = [];
 
@@ -16,7 +17,7 @@ function init(){
   userStream.on('tweet', onTweet);
 
   //Get all saved users from DB
-  var pool = new Pool({
+  pool = new Pool({
     connectionString: process.env.DATABASE_URL
   });
 
