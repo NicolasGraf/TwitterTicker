@@ -6,5 +6,6 @@ module.exports = {
    access_token_secret:  'IqXXAhxwONn1vl6NC5X9HebmzRTNwx7bYCzrXZ84Sv5mj'
  },
  apiPath : "https://api.coinmarketcap.com/v1/",
- shortResponses : false
+ shortResponses : false,
+ appName: "AltcoinTicker"
 };
