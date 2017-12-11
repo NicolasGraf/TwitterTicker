@@ -21,6 +21,7 @@ function init(){
     connectionString: process.env.DATABASE_URL
   });
 
+  //Setup Cronjobs for users in the database
   pool.query('select * from ticker_jobs', (err, res) => {
     if(res != null){
       var rows = res.rows;
@@ -34,7 +35,6 @@ function init(){
   cronJobs.push(schedule.scheduleJob('0 12 * * *', getAndTweetTop5));
 
   //getAndTweetTop5();
-  //sendInfos("nick", "bitcoin", "eur");
 }
 
 init();
@@ -147,10 +147,11 @@ function onTweet(e){
     console.log("The tweet reads: " + e.text);
 
     var params = util.filterInput(e.text, e.user.screen_name);
+    if(params != null){
+      saveTickerJob(params.name, params.coin, params.currency, params.frequency);
 
-    saveTickerJob(params.name, params.coin, params.currency, params.frequency);
-
-    setCronjob(params.frequency, params.name, params.coin, params.currency);
+      setCronjob(params.frequency, params.name, params.coin, params.currency);
+    }
   }
 }
 
